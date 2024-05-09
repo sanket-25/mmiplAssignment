@@ -1,4 +1,3 @@
-// controllers/postController.js
 const Post = require('../models/Post');
 
 exports.getAllPosts = async (req, res) => {
@@ -36,13 +35,45 @@ exports.createPost = async (req, res) => {
     }
 };
 
+// exports.updatePost = async (req, res) => {
+//     const { id } = req.params;
+//     const { title, content } = req.body;
+//     if (!title || !content) {
+//         return res.status(400).json({ error: 'Title and content are required' });
+//     }
+//     try {
+//         await Post.updatePost(id, title, content);
+//         res.json({ message: 'Post updated successfully' });
+//     } catch (error) {
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
+// exports.deletePost = async (req, res) => {
+//     const { id } = req.params;
+//     try {
+//         await Post.deletePost(id);
+//         res.json({ message: 'Post deleted successfully' });
+//     } catch (error) {
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
+
 exports.updatePost = async (req, res) => {
     const { id } = req.params;
     const { title, content } = req.body;
-    if (!title || !content) {
-        return res.status(400).json({ error: 'Title and content are required' });
-    }
+    
     try {
+        const post = await Post.getPostById(id);
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        if (post.author !== req.user.id) {
+            return res.status(403).json({ error: 'You are not authorized to update this post' });
+        }
+
         await Post.updatePost(id, title, content);
         res.json({ message: 'Post updated successfully' });
     } catch (error) {
@@ -52,7 +83,17 @@ exports.updatePost = async (req, res) => {
 
 exports.deletePost = async (req, res) => {
     const { id } = req.params;
+
     try {
+        const post = await Post.getPostById(id);
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        if (post.author !== req.user.id) {
+            return res.status(403).json({ error: 'You are not authorized to delete this post' });
+        }
+
         await Post.deletePost(id);
         res.json({ message: 'Post deleted successfully' });
     } catch (error) {

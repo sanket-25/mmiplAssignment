@@ -1,4 +1,3 @@
-// middleware/authenticate.js
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = 'sanket12345';
 

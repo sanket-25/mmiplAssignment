@@ -1,4 +1,3 @@
-// models/Comment.js
 const db = require('../db');
 
 module.exports = {

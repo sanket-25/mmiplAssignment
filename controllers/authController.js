@@ -1,4 +1,3 @@
-// controllers/authController.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
@@ -29,5 +28,4 @@ exports.login = (req, res) => {
     res.json({ token });
 };
 
-// controllers/postController.js
-// You can similarly implement controllers for handling blog post operations
+

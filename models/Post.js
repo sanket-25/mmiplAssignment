@@ -1,4 +1,3 @@
-// models/Post.js
 const db = require('../db');
 
 module.exports = {

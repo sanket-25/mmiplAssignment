@@ -59,25 +59,19 @@ app.get('/protected', authenticateToken, (req, res) => {
 
 
 
-// Blog Post Routes
 app.get('/posts', (req, res) => {
-    // Get all blog posts
 });
 
 app.get('/posts/:id', (req, res) => {
-    // Get a single blog post by ID
 });
 
 app.post('/posts', (req, res) => {
-    // Create a new blog post
 });
 
 app.put('/posts/:id', (req, res) => {
-    // Update an existing blog post by ID
 });
 
 app.delete('/posts/:id', (req, res) => {
-    // Delete a blog post by ID
 });
 
 
