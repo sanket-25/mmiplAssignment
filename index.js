@@ -1,100 +1,88 @@
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const routes = require('./routes/routes');
-
-// const app = express();
-// const port = process.env.PORT || 3000;
-
-// // const mongoURI = 'mongodb+srv://2022sanketdhuri:WKm6WEKmHe80Mgql@cluster0.91iy5uo.mongodb.net/iot';
-
-// // mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-// //     .then(() => console.log('MongoDB connected'))
-// //     .catch(err => console.log(err));
-
-// app.use('/', routes);
-
-// app.listen(port, () => {
-//     console.log(`Server is running on port ${port}`);
-// });
-
-
-
 const express = require('express');
-const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
+const SECRET_KEY = 'sanket12345';
 
-// Middleware
+const users = [
+    { id: 1, username: 'user1', password: 'password1' },
+    { id: 2, username: 'user2', password: 'password2' }
+];
+
 app.use(bodyParser.json());
+app.use(cors());
 
-// MySQL Connection
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Sanket25!',
-  database: 'temp'
+function authenticateToken(req, res, next) {
+    const token = req.headers['authorization'];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
+
+app.post('/register', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required' });
+    }
+
+    if (users.find(user => user.username === username)) {
+        return res.status(400).json({ message: 'Username already exists' });
+    }
+
+    const newUser = { id: users.length + 1, username: username, password: password };
+    users.push(newUser);
+    res.status(201).json({ message: 'User created successfully' });
 });
 
-// Connect
-db.connect((err) => {
-  if (err) {
-    throw err;
-  }
-  console.log('MySQL Connected...');
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    const user = users.find(u => u.username === username && u.password === password);
+    if (!user) {
+        return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({ token });
 });
 
-// Create a record
-app.post('/api/records', (req, res) => {
-  const { name, email } = req.body;
-  const sql = 'INSERT INTO records (name, email) VALUES (?, ?)';
-  db.query(sql, [name, email], (err, result) => {
-    if (err) throw err;
-    res.send('Record added...');
-  });
+app.get('/protected', authenticateToken, (req, res) => {
+    res.json({ message: 'Welcome to the protected route!' });
 });
 
-// Read all records
-app.get('/api/records', (req, res) => {
-  const sql = 'SELECT * FROM records';
-  db.query(sql, (err, results) => {
-    if (err) throw err;
-    res.json(results);
-  });
+
+
+
+// Blog Post Routes
+app.get('/posts', (req, res) => {
+    // Get all blog posts
 });
 
-// Read a record
-app.get('/api/records/:id', (req, res) => {
-  const { id } = req.params;
-  const sql = 'SELECT * FROM records WHERE id = ?';
-  db.query(sql, id, (err, result) => {
-    if (err) throw err;
-    res.json(result[0]);
-  });
+app.get('/posts/:id', (req, res) => {
+    // Get a single blog post by ID
 });
 
-// Update a record
-app.put('/api/records/:id', (req, res) => {
-  const { id } = req.params;
-  const { name, email } = req.body;
-  const sql = 'UPDATE records SET name = ?, email = ? WHERE id = ?';
-  db.query(sql, [name, email, id], (err, result) => {
-    if (err) throw err;
-    res.send('Record updated...');
-  });
+app.post('/posts', (req, res) => {
+    // Create a new blog post
 });
 
-// Delete a record
-app.delete('/api/records/:id', (req, res) => {
-  const { id } = req.params;
-  const sql = 'DELETE FROM records WHERE id = ?';
-  db.query(sql, id, (err, result) => {
-    if (err) throw err;
-    res.send('Record deleted...');
-  });
+app.put('/posts/:id', (req, res) => {
+    // Update an existing blog post by ID
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.delete('/posts/:id', (req, res) => {
+    // Delete a blog post by ID
+});
+
+
+
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
