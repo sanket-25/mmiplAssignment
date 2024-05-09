@@ -1,18 +1,27 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const authRoutes = require('./routes/authRoutes');
-// Import other route modules as needed
-
+const errorHandler = require('./middleware/errorHandler');
+const authenticate = require('./middleware/authenticate');
+const postRoutes = require('./routes/postRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(cors());
 
-// Mounting routes
+
+
+
 app.use('/auth', authRoutes);
-// Mount other routes here
+
+app.use('/posts', postRoutes);
+
+app.use('/comments', commentRoutes);
+
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

@@ -1,19 +1,18 @@
-// models/User.js
 const users = [
     { id: 1, username: 'user1', password: 'password1' },
     { id: 2, username: 'user2', password: 'password2' }
 ];
 
+const db = require('../db');
+
 module.exports = {
-    findByUsernameAndPassword: (username, password) => {
-        return users.find(u => u.username === username && u.password === password);
+    getAllUsers: (callback) => {
+        db.query('SELECT * FROM users', callback);
     },
-    findByUsername: (username) => {
-        return users.find(u => u.username === username);
+    getUserById: (id, callback) => {
+        db.query('SELECT * FROM users WHERE id = ?', [id], callback);
     },
-    createUser: (username, password) => {
-        const newUser = { id: users.length + 1, username, password };
-        users.push(newUser);
-        return newUser;
-    }
+    createUser: (username, password, callback) => {
+        db.query('INSERT INTO users (username, password) VALUES (?, ?)', [username, password], callback);
+    },
 };
